@@ -127,29 +127,39 @@ function _list(apiGateway, params, dryRun, cb) {
 }
 
 function _del(apiGateway, params, dryRun, cb) {
-  var operations = [{op: 'apiGateway.deleteMethodResponse', params: params}];
+  var operation = {
+    op: 'apiGateway.deleteMethodResponse',
+    params: params,
+    message: 'apiGateway: delete methodResponse ' + params.statusCode + ' (resourceId=' + params.resourceId + ' httpMethod=' + params.httpMethod + ')'
+  };
 
   if (dryRun) {
-    cb(null, {operations: operations, items: []});
+    operation.message = '(dryrun) ' + operation.message;
+    cb(null, {operations: [operation], items: []});
   } else {
     apiGateway.deleteMethodResponse(
       params,
       function(err) {
         var data = {statusCode: params.statusCode};
-        cb(err, {operations: operations, items: [data]});
+        cb(err, {operations: [operation], items: [data]});
       }
     );
   }
 }
 
 function _create(apiGateway, params, dryRun, cb) {
-  var operations = [{op: 'apiGateway.putMethodResponse', params: params}];
+  var operation = {
+    op: 'apiGateway.putMethodResponse',
+    params: params,
+    message: 'apiGateway: put methodResponse ' + params.statusCode + ' (resourceId=' + params.resourceId + ' httpMethod=' + params.httpMethod + ')'
+  };
 
   if (dryRun) {
-    cb(null, {operations: operations, items: []});
+    operation.message = '(dryrun) ' + operation.message;
+    cb(null, {operations: [operation], items: []});
   } else {
     apiGateway.putMethodResponse(params, function(err, data) {
-      cb(err, {operations: operations, items: [data]});
+      cb(err, {operations: [operation], items: [data]});
     });
   }
 }
@@ -172,12 +182,17 @@ function _update(apiGateway, params, dryRun, cb) {
       if (patchOperations.length > 0) {
         params = assign({}, idendifiers, {patchOperations: patchOperations});
 
-        var operations = [{op: 'apiGateway.updateMethodResponse', params: params}];
+        var operation = {
+          op: 'apiGateway.updateMethodResponse',
+          params: params,
+          message: 'apiGateway: update methodResponse ' + params.statusCode + ' (resourceId=' + params.resourceId + ' httpMethod=' + params.httpMethod + ')'
+        };
         if (dryRun) {
-          cb(null, {operations: operations, items: []});
+          operation.message = '(dryrun) ' + operation.message;
+          cb(null, {operations: [operation], items: []});
         } else {
           apiGateway.updateMethodResponse(params, function(err, data) {
-            cb(err, {operations: operations, items: [data]});
+            cb(err, {operations: [operation], items: [data]});
           });
         }
       } else {

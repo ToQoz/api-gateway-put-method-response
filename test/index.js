@@ -38,21 +38,47 @@ test('create GET -> nop GET + create POST -> delete GET', function(t) {
   var ag = new APIGateway();
 
   // create 200
-  putMethodResponse(ag, {restApiId: '', resourceId: '', httpMethod: "GET", responses: [{statusCode: '200'}]}, function(err, data) {
+  putMethodResponse(ag, {restApiId: '', resourceId: 'y', httpMethod: "GET", responses: [{statusCode: '200'}]}, function(err, data) {
     t.deepEqual(data.items, [{httpMethod: "GET", statusCode: '200'}]);
-    t.deepEqual(data.operations, [{op: 'apiGateway.putMethodResponse', params: {restApiId: '', resourceId: '', httpMethod: "GET", statusCode: '200'}}]);
+    t.deepEqual(data.operations, [{
+      op: 'apiGateway.putMethodResponse',
+      params: {restApiId: '', resourceId: 'y', httpMethod: "GET", statusCode: '200'},
+      message: 'apiGateway: put methodResponse 200 (resourceId=y httpMethod=GET)'
+    }]);
 
     // nop 200 + create 400
-    putMethodResponse(ag, {restApiId: '', resourceId: '', httpMethod: "GET", responses: [{statusCode: '200'}, {statusCode: "400"}]}, function(err, data) {
+    putMethodResponse(ag, {restApiId: '', resourceId: 'y', httpMethod: "GET", responses: [{statusCode: '200'}, {statusCode: "400"}]}, function(err, data) {
       t.deepEqual(data.items, [{httpMethod: "GET", statusCode: '200'}, {httpMethod: "GET", statusCode: '400'}]);
-      t.deepEqual(data.operations, [{op: 'apiGateway.putMethodResponse', params: {restApiId: '', resourceId: '', httpMethod: "GET", statusCode: '400'}}]);
+      t.deepEqual(data.operations, [{
+        op: 'apiGateway.putMethodResponse',
+        params: {restApiId: '', resourceId: 'y', httpMethod: "GET", statusCode: '400'},
+      message: 'apiGateway: put methodResponse 400 (resourceId=y httpMethod=GET)'
+      }]);
 
       // delete 200
-      putMethodResponse(ag, {deleteOthers: true, restApiId: '', resourceId: '', httpMethod: "GET", responses: [{statusCode: '400'}]}, function(err, data) {
+      putMethodResponse(ag, {deleteOthers: true, restApiId: '', resourceId: 'y', httpMethod: "GET", responses: [{statusCode: '400'}]}, function(err, data) {
         t.deepEqual(data.items, [{httpMethod: "GET", statusCode: '400'}]);
-        t.deepEqual(data.operations, [{op: 'apiGateway.deleteMethodResponse', params: {restApiId: '', resourceId: '', httpMethod: "GET", statusCode: '200'}}]);
+        t.deepEqual(data.operations, [{
+          op: 'apiGateway.deleteMethodResponse',
+          params: {restApiId: '', resourceId: 'y', httpMethod: "GET", statusCode: '200'},
+          message: 'apiGateway: delete methodResponse 200 (resourceId=y httpMethod=GET)'
+        }]);
       });
     });
+  });
+});
+test('dryrun', function(t) {
+  t.plan(2);
+
+  var ag = new APIGateway();
+
+  putMethodResponse(ag, {dryRun: true, restApiId: '', resourceId: 'y', httpMethod: "GET", responses: [{statusCode: '200'}]}, function(err, data) {
+    t.deepEqual(data.items, []);
+    t.deepEqual(data.operations, [{
+      op: 'apiGateway.putMethodResponse',
+      params: {restApiId: '', resourceId: 'y', httpMethod: "GET", statusCode: '200'},
+      message: '(dryrun) apiGateway: put methodResponse 200 (resourceId=y httpMethod=GET)'
+    }]);
   });
 });
 
